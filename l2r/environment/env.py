@@ -11,10 +11,10 @@ import numpy as np
 from gym.spaces import Box, Dict
 from scipy.spatial import KDTree
 
-import envs.utils as utils
-from baselines.reward import CustomReward
+import environment.utils as utils
+from environment.reward import GranTurismo, CustomReward
+
 from core.controller import SimulatorController
-from envs.reward import GranTurismo
 from core.tracker import ProgressTracker
 from racetracks.mapping import level_2_trackmap
 
