@@ -59,6 +59,7 @@ class AbstractReward(abc.ABC):
         """Reset the reward policy."""
         pass
 
+
 class GranTurismo(AbstractReward):
     """This is the default reward for the environment. It is our interpretation
     of the work: Super-Human Performance in Gran Turismo Sport Using Deep
@@ -106,7 +107,8 @@ class GranTurismo(AbstractReward):
         if not oob_flag:
             return 0.0
 
-        return min(-1.0 * self.min_oob_penalty, -1.0 * self.oob_penalty * velocity)
+        return min(-1.0 * self.min_oob_penalty, -
+                   1.0 * self.oob_penalty * velocity)
 
     def _reward_progress(self, race_idx):
         """Reward for progressing down the track. This is simply a reward of 1
@@ -128,6 +130,7 @@ class GranTurismo(AbstractReward):
 
         self.prior_idx = race_idx
         return float(rwd)
+
 
 class CustomReward(GranTurismo):
     """This is a modfication of the default GranTurismo reward policy which is
@@ -170,7 +173,8 @@ class CustomReward(GranTurismo):
         :type oob_flag: boolean, optional
         """
         (pose_data, race_idx) = state
-        velocity = np.linalg.norm(pose_data[VELOCITY_IDX_LOW:VELOCITY_IDX_HIGH])
+        velocity = np.linalg.norm(
+            pose_data[VELOCITY_IDX_LOW:VELOCITY_IDX_HIGH])
         loc = np.array([pose_data[EAST_IDX], pose_data[NORTH_IDX]])
         oob_reward = self._reward_oob(velocity, oob_flag)
         progress_reward = self._reward_progress(race_idx)

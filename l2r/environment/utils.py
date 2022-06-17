@@ -55,6 +55,7 @@ MAX_STEER_REQ = 1.0
 class InvalidActionException(Exception):
     pass
 
+
 class AbstractInterface(abc.ABC):
     """Abstract simulator interface to receive data from the simulator."""
 
@@ -76,6 +77,7 @@ class AbstractInterface(abc.ABC):
     def reset(self):
         """Used to reset the interface, often to clear existing data."""
         pass
+
 
 class ActionInterface(object):
     """Action send interface. This class communicates with the simulator and
@@ -352,13 +354,15 @@ class GeoLocation(object):
         slon = sin(y * self.D2R)
 
         # Compute reference position vector in ECEF coordinates
-        r0Ref = self.EARTHSEMIMAJOR / (sqrt(1.0 - self.EARTHECCEN2 * slatRef * slatRef))
+        r0Ref = self.EARTHSEMIMAJOR / \
+            (sqrt(1.0 - self.EARTHECCEN2 * slatRef * slatRef))
         ecefRef = [0.0] * 3
         ecefRef[0] = (ref_z + r0Ref) * clatRef * clonRef
         ecefRef[1] = (ref_z + r0Ref) * clatRef * slonRef
         ecefRef[2] = (ref_z + r0Ref * (1.0 - self.EARTHECCEN2)) * slatRef
 
-        # Compute data position vectors relative to reference point in ECEF co-ordinates
+        # Compute data position vectors relative to reference point in ECEF
+        # co-ordinates
         r0 = self.EARTHSEMIMAJOR / (sqrt(1.0 - self.EARTHECCEN2 * slat * slat))
         dECEF = [0.0] * 3
         dECEF[0] = (z + r0) * clat * clon - ecefRef[0]
@@ -386,6 +390,7 @@ class GeoLocation(object):
 
         return np.array([enu_east, enu_north, enu_up])
 
+
 def smooth_yaw(yaw):
     for i in range(len(yaw) - 1):
         dyaw = yaw[i + 1] - yaw[i]
@@ -398,4 +403,3 @@ def smooth_yaw(yaw):
             yaw[i + 1] += math.pi * 2.0
             dyaw = yaw[i + 1] - yaw[i]
     return yaw
-

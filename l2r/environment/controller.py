@@ -89,9 +89,8 @@ class SimulatorController(object):
                 exit(1)
 
         self.sim_version = sim_version
-        self.drive_mode_param = (
-            "bIsManulMode" if sim_version.startswith("RoboraceMaps") else "bADModeInput"
-        )
+        self.drive_mode_param = ("bIsManulMode" if sim_version.startswith(
+            "RoboraceMaps") else "bADModeInput")
         self.id = 0
         self.quiet = quiet
 
@@ -117,7 +116,8 @@ class SimulatorController(object):
             if self.start_container:
                 print("[Controller] Starting simulator container")
                 with open("/tmp/sim_log.txt", "w") as out:
-                    subprocess.Popen(self.start, shell=True, stdout=out, stderr=out)
+                    subprocess.Popen(
+                        self.start, shell=True, stdout=out, stderr=out)
 
             elif self.sim_path:
                 print("[Controller] Starting simulator")
@@ -163,7 +163,9 @@ class SimulatorController(object):
         """
         level_name = level_2_simlevel(level, self.sim_version)
         self._print(f"Setting level to {level}")
-        return self._send_msg(method="open_level", params={"level_name": level_name})
+        return self._send_msg(
+            method="open_level", params={
+                "level_name": level_name})
 
     def set_location(self, coords, rot, veh_id=0):
         """Sets a vehicle to a specific location on track.
@@ -210,7 +212,9 @@ class SimulatorController(object):
           heading
         :rtype: list of floats, float
         """
-        result = self._send_msg(method="get_vehicle_state", params={"veh_id": veh_id})
+        result = self._send_msg(
+            method="get_vehicle_state", params={
+                "veh_id": veh_id})
         return result["pos_xyz"], result["yaw"]
 
     def get_vehicle_params(self, veh_id=0):
@@ -220,7 +224,9 @@ class SimulatorController(object):
         :return: a dictionary of the vehicle's parameters
         :rtype: dict
         """
-        return self._send_msg(method="get_vehicle_params", params={"veh_id": veh_id})
+        return self._send_msg(
+            method="get_vehicle_params", params={
+                "veh_id": veh_id})
 
     def set_vehicle_params(self, parameters, veh_id=0):
         """Set parameters of a vehicle.
@@ -268,7 +274,9 @@ class SimulatorController(object):
         :return: parameters for each sensor
         :rtype: list
         """
-        return self._send_msg(method="get_sensors_params", params={"veh_id": veh_id})
+        return self._send_msg(
+            method="get_sensors_params", params={
+                "veh_id": veh_id})
 
     def get_sensor_params(self, sensor, veh_id=0):
         """Get the parameters of a specified sensor of a specified vehicle.
@@ -279,8 +287,8 @@ class SimulatorController(object):
         :rtype: dict
         """
         return self._send_msg(
-            method="get_sensor_params", params={"veh_id": veh_id, "sensor_name": sensor}
-        )
+            method="get_sensor_params", params={
+                "veh_id": veh_id, "sensor_name": sensor})
 
     def set_sensor_param(self, sensor, name, value, veh_id=0):
         """Set a specified parameter to a specified value of a specified
@@ -327,7 +335,10 @@ class SimulatorController(object):
 
         _ = self._send_msg(
             method="set_sensor_params",
-            params={"veh_id": veh_id, "sensor_name": sensor, "parameters": parameters},
+            params={
+                "veh_id": veh_id,
+                "sensor_name": sensor,
+                "parameters": parameters},
         )
 
     def get_vehicle_driver_params(self, veh_id=0):
