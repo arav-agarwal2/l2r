@@ -2,6 +2,7 @@
 from environment.env import RacingEnv
 from models.rl.buffer import ReplayBuffer
 
+
 class ReinforcementLearningRunner():
     def __init__(self, agent_kwargs, env_kwargs, sim_kwargs):
         self.agent_kwargs = agent_kwargs
@@ -12,10 +13,11 @@ class ReinforcementLearningRunner():
         # TODO: initialize agent
         self.agent = agent_kwargs.agent(agent_kwargs)
         # TODO: initialize visual encoder
-        self.encoder = agent_kwargs.visual_encoder_type(agent_kwargs.visual_encoder_params)
+        self.encoder = agent_kwargs.visual_encoder_type(
+            agent_kwargs.visual_encoder_params)
         self.replay_buffer = ReplayBuffer()
         pass
-    
+
     def _reset(self, random_pos=False):
         # reset the simulator
         env = self.env
@@ -68,8 +70,10 @@ class ReinforcementLearningRunner():
             assert (np.mean(camera2) > 0) & (np.mean(camera2) < 255)
 
             # Prevents the agent from getting stuck by sampling random actions
-            # self.atol for SafeRandom and SPAR are set to -1 so that this condition does not activate
-            if np.allclose(state2[15:16], state[15:16], atol=self.atol, rtol=0):
+            # self.atol for SafeRandom and SPAR are set to -1 so that this
+            # condition does not activate
+            if np.allclose(state2[15:16], state[15:16],
+                           atol=self.atol, rtol=0):
                 # self.file_logger("Sampling random action to get unstuck")
                 a = self.env.action_space.sample()
 
@@ -87,9 +91,10 @@ class ReinforcementLearningRunner():
             d = False if ep_len == self.cfg["max_ep_len"] else d
 
             # Store experience to replay buffer
-            if (not np.allclose(state2[15:16], state[15:16], atol=3e-1, rtol=0)) | (
-                r != 0
-            ):
+            if (not np.allclose(state2[15:16],
+                                state[15:16],
+                                atol=3e-1,
+                                rtol=0)) | (r != 0):
                 self.replay_buffer.store(feat, a, r, feat2, d)
             else:
                 # print('Skip')
@@ -124,11 +129,12 @@ class ReinforcementLearningRunner():
             camera = camera2  # in case we, later, wish to store the state in the replay as well
 
             # Update handling
-            if (t >= self.cfg["update_after"]) & (t % self.cfg["update_every"] == 0):
+            if (t >= self.cfg["update_after"]) & (
+                    t % self.cfg["update_every"] == 0):
                 for j in range(self.cfg["update_every"]):
-                    batch = self.replay_buffer.sample_batch(self.cfg["batch_size"])
+                    batch = self.replay_buffer.sample_batch(
+                        self.cfg["batch_size"])
                     self.agent.update(data=batch)
-                    
 
             if (t + 1) % self.cfg["eval_every"] == 0:
                 # eval on test environment
@@ -171,6 +177,6 @@ class ReinforcementLearningRunner():
                     state,
                     t_start,
                 ) = self.reset_episode(t)
-    
+
     def evaluate(self):
         pass
