@@ -8,13 +8,12 @@
 import ipdb as pdb
 from envs.env import RacingEnv
 from common.utils import setup_logging, resolve_envvars
-from baselines.rl.sac import SACAgent
+from l2r.baselines.rl.agent import SACAgent
 import json
 import os
 import sys
 
 from ruamel.yaml import YAML
-from datetime import date, datetime, timezone
 from types import SimpleNamespace
 
 l2r_path = os.path.abspath(os.path.join(''))

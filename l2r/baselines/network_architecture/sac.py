@@ -1,16 +1,7 @@
 import torch
 import torch.nn as nn
 from baselines.core import mlp, SquashedGaussianMLPActor
-import ipdb as pdb
-
-
-def resnet18(pretrained=True):
-    model = torch.hub.load('pytorch/vision:v0.6.0', 'resnet18',
-                           pretrained=pretrained)
-    for param in model.parameters():
-        param.requires_grad = False
-    model.fc = nn.Identity()
-    return model
+import itertools
 
 
 class Qfunction(nn.Module):
@@ -82,11 +73,12 @@ class DuelingNetwork(nn.Module):
 
         out = self.A_network(
             torch.cat([img_embed, spd_embed, action_embed], dim=-1))
-        '''
-        if advantage_only == False:
-            V = self.V_network(torch.cat([img_embed, spd_embed], dim = -1)) # n x 1
+
+        if not advantage_only:
+            V = self.V_network(
+                torch.cat([img_embed, spd_embed], dim=-1))  # n x 1
             out += V
-        '''
+
         return out.view(-1)
 
 
@@ -108,9 +100,14 @@ class ActorCritic(nn.Module):
             obs_dim, act_dim, cfg[cfg['use_encoder_type']]['actor_hiddens'], activation, act_limit)
         if safety:
             self.q1 = DuelingNetwork(cfg)
+            self.q_params = self.q1.parameters()
         else:
             self.q1 = Qfunction(cfg)
             self.q2 = Qfunction(cfg)
+            self.q_params = itertools.chain(
+                self.q1.parameters(),
+                self.q2.parameters()
+            )
         self.device = device
         self.to(device)
 

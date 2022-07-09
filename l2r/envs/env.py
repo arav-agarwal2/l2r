@@ -20,9 +20,8 @@ from gym.spaces import Box, Dict
 from scipy.spatial import KDTree
 
 import envs.utils as utils
-from baselines.reward import CustomReward
+from baselines.reward import CustomGranTurismoReward, BaseGranTurismo
 from core.controller import SimulatorController
-from envs.reward import GranTurismo
 from core.tracker import ProgressTracker
 from racetracks.mapping import level_2_trackmap
 
@@ -166,9 +165,9 @@ class RacingEnv(gym.Env):
         ]
 
         self.reward = (
-            GranTurismo(**reward_kwargs)
+            BaseGranTurismo(**reward_kwargs)
             if self.reward_pol == "default"
-            else CustomReward(**reward_kwargs)
+            else CustomGranTurismoReward(**reward_kwargs)
         )
 
         # openAI gym compliance - action space

@@ -1,30 +1,69 @@
 import os
 import sys
 import logging
-import shutil
 import re
 import numpy as np
-import pandas as pd
-import ipdb as pdb
-import torch.nn as nn
 from tensorboardX import SummaryWriter
 from datetime import datetime
+import shutil
+import warnings
+
+base_config = {
+    "pct_complete": 'ep_pct_complete',
+    "total_time": "ep_total_time",
+    "total_distance": "ep_total_distance",
+    "average_speed_kph": "ep_avg_speed",
+    "average_displacement_error": "ep_avg_disp_err",
+    "trajectory_efficiency": "ep_traj_efficiency",
+    "trajectory_admissibility": "ep_traj_admissibility",
+    "movement_smoothness": "movement_smoothness",
+    "ep_n_steps": "ep_n_steps",
+    "episodic_return": "episodic_return",
+    "ep_interventions": "ep_interventions"
+}
+
+
+class TBLogger:
+    """TensorBoard Logger instance."""
+
+    def __init__(self, log_dir, exp_name, config=base_config):
+        """Initialize logger."""
+        now = datetime.now()
+        current_time = now.strftime("%m%d%H%M%S")
+        log_dir = f"{log_dir}/tblogs/{exp_name}_{current_time}"
+
+        self.writer = SummaryWriter(log_dir=log_dir)
+        self.config = config
+
+    def log(self, data, iter_no):
+        """Send metric information to TensorBoard
+
+        Args:
+            data (dict): Dict of local metric name to metric value
+            iter_no (int): Iteration number
+        """
+
+        # If there is no data, don't log anything.
+        if data == dict():
+            return
+
+        for local_metric_name, tb_metric_name in self.config:
+            if local_metric_name in data:
+                self.writer.add_scalar(tb_metric_name,
+                                       data[local_metric_name], iter_no)
 
 
 def setup_tb_logging(log_dir, exp_name, resume):
     """ Set up tensorboard logger"""
-    now = datetime.now()
-    current_time = now.strftime("%m%d%H%M%S")
-    log_dir = f"{log_dir}/tblogs/{exp_name}_{current_time}"
-    '''
     # remove previous log with the same name, if not resume
     if not resume and os.path.exists(log_dir):
         try:
             shutil.rmtree(log_dir)
-        except:
-            warnings.warn('Experiment existed in TensorBoard, but failed to remove')
-    '''
-    return SummaryWriter(log_dir=log_dir)
+        except BaseException:
+            warnings.warn(
+                'Experiment existed in TensorBoard, but failed to remove')
+
+    return TBLogger(log_dir=log_dir)
 
 
 def setup_file_logging(logdir, experiment_name):
@@ -87,7 +126,7 @@ def resolve_envvars(config, args):
             for sub_key in list(config[key].keys()):
                 sub_envvars = find_envvar_patterns(config[key], sub_key)
                 if len(sub_envvars) > 0:
-                    for sub_var in sub_envvars:
+                    for _ in sub_envvars:
                         replace_envvar_patterns(
                             config[key], sub_key, sub_envvars, args)
 
@@ -96,18 +135,6 @@ def resolve_envvars(config, args):
             replace_envvar_patterns(config, key, envvars, args)
 
     return config
-
-
-def is_number(s):
-    """
-    Somehow, the most pythonic way to check string for float number; used for safe user input parsing
-    src: https://stackoverflow.com/questions/354038/how-do-i-check-if-a-string-is-a-number-float
-    """
-    try:
-        float(s)
-        return True
-    except ValueError:
-        return False
 
 
 class RecordExperience:
